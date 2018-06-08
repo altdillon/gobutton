@@ -1,0 +1,11 @@
+# https://ogeon.github.io/docs/rust-wiringpi/master/wiringpi/
+#
+
+[package]
+name = "gobutton"
+version = "0.1.0"
+authors = ["Dillon"]
+
+[dependencies]
+wiringpi = "0.2.4"
+serde_json = "1.0"
