@@ -3,6 +3,14 @@ extern crate gobutton;
 extern crate wiringpi;
 extern crate serde_json; // for json encoding
 
+
+//extern crate serde;
+//extern crate serde_json;
+
+#[macro_use] extern crate serde_derive;
+
+use serde_json::Error;
+
 use wiringpi::pin::Value::{High, Low};
 use std::{thread, time};
 
@@ -12,13 +20,14 @@ use gobutton::button::Play_button;
 use std::net::*; // all the stuff for using the network
 
 
+
 fn multicast_setup() -> UdpSocket
 {
     // new up the address and interfaces
     let multicast_address = Ipv4Addr::new(224,3,29,71); //multicast_group = '224.3.29.71'
     let interface = Ipv4Addr::new(0,0,0,0); // I don't fully know how this works and it may caouse some issues in the future
     // setup a new udp packet struct
-    let socket_result = UdpSocket::bind("192.168.1.10:5006");
+    let socket_result = UdpSocket::bind("192.168.1.17:5006");
 
     match socket_result
     {
@@ -31,9 +40,46 @@ fn multicast_setup() -> UdpSocket
 }
 
 
+enum button_command
+{
+    start,
+    stop,
+}
+
+#[derive(Serialize, Deserialize)]
+struct ButtonTemplate
+{
+    command: String,
+    timestamp: u64,
+}
+
+// take in a command and time and return a json formatted string
+fn setupCommand (command:button_command,time_stamp: u64) -> String
+{
+    // use the json macro from serde to setup the json string
+
+    // if let button_command::start = command // start command
+    // {
+    //     println!("start");
+    //     let command
+    // }
+    // else if let button_command::stop = command // stop command
+    // {
+    //     println!("stop");
+    // }
+
+
+    // "hello"
+
+    let cmd = ButtonTemplate {command: if let button_command::start = command {String::from("start")} else {String::from("stop")}, timestamp: time_stamp };
+    serde_json::to_string(&cmd).unwrap()
+}
 
 fn main()
 {
+    let st=setupCommand(button_command::stop,18446744073709551615);
+    println!("{}",st);
+
     let mut pbutton = Play_button::new(); // setup a new struct for the play Play_button
     let wpi = wiringpi::setup();
     let start_button = wpi.input_pin(21); // gpio pin #5, attached to the green button
