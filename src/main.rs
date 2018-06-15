@@ -77,8 +77,8 @@ fn setupCommand (command:button_command,time_stamp: u64) -> String
 
 fn main()
 {
-    let st=setupCommand(button_command::stop,18446744073709551615);
-    println!("{}",st);
+    // let st=setupCommand(button_command::stop,18446744073709551615);
+    // println!("{}",st);
 
     let mut pbutton = Play_button::new(); // setup a new struct for the play Play_button
     let wpi = wiringpi::setup();
@@ -98,24 +98,27 @@ fn main()
         if start_button.digital_read() == Low && pbutton.was_pressed() == false  // button is active low
         {
             let start_time = pbutton.reg_press_play();
-            let mut command = String::from("\"command\":");
-            command.push_str("\"playAt\",");
-            command.push_str("\"time:\"");
-            command.push_str(start_time.to_string().as_str());
-            //println!("{}",command);
-            let message = command.as_bytes(); // needs to be byte data to send it to multicast netowrk
+            // let mut command = String::from("\"command\":");
+            // command.push_str("\"playAt\",");
+            // command.push_str("\"time:\"");
+            // command.push_str(start_time.to_string().as_str());
+            // //println!("{}",command);
+            // let message = command.as_bytes(); // needs to be byte data to send it to multicast netowrk
+            let command = setupCommand(button_command::start,start_time);
+            let message = command.as_bytes();
             let success = socket.send_to(&message[0..message.len()],"224.3.29.71:5005");
             indicator_led.digital_write(High); // play indicator goes high
         }
 
         if stop_button.digital_read() == Low && pbutton.was_pressed() == true
         {
-            let deltaTime = pbutton.reg_press_stop();
-            let mut command = String::from("\"command\":");
-            command.push_str("\"stop\",");
-            command.push_str("\"delta_time:\"");
-            command.push_str(deltaTime.to_string().as_str());
+            let stoptime = pbutton.reg_press_stop();
+            // let mut command = String::from("\"command\":");
+            // command.push_str("\"stop\",");
+            // command.push_str("\"delta_time:\"");
+            // command.push_str(deltaTime.to_string().as_str());
             //println!("{}",command);
+            let command = setupCommand(button_command::stop,stoptime);
             let message = command.as_bytes(); // needs to be byte data to send it to multicast netowrk
             let success = socket.send_to(&message[0..message.len()],"224.3.29.71:5005");
             indicator_led.digital_write(Low); // play indicator goes low
